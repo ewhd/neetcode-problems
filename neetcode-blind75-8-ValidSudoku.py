@@ -47,8 +47,9 @@ board[i][j] is a digit 1-9 or '.'.
 Recommended Time & Space Complexity: You should aim for a solution as good or
 better than O(n^2) time and O(n^2) space, where n is the number of rows in the
 square grid.
+'''
 
-
+'''
 Notes:
 
 So this is all about identifying if the board contains patterns that are not
@@ -83,45 +84,87 @@ block 7: row 7-9, col 1-3
 block 8: row 7-9, col 4-6
 block 9: row 7-9, col 7-9
 
-
-
-
 once I can reference each sub-unit, then I'll check validity by checking for
 uniqueness within each unit (ignoring empty squares)
 
 check uniqueness: len(list) == len(set(list))
 
+
+Oh! This is what NumPy is for!
+
+yeah, that simplifies everything
+
+I also realized I don't need to compile a monolithic array of sections and
+evaluate them with a loop -- I can just evaluate them /as I generate them/
+
+I could extract the extraction functions right into the main function, but this
+way each function receives the board as an argument, and so doesn't transform
+our original board, preserving it for the next function to receive.
+
 '''
 
-class Solution:
-    def isValidSudoku(self, board: list[list[str]]) -> bool:
-        
+import numpy as np
 
-board = 
-[["1","2",".", ".","3",".", ".",".","."],
- ["4",".",".", "5",".",".", ".",".","."],
- [".","9","8", ".",".",".", ".",".","3"],
- 
- ["5",".",".", ".","6",".", ".",".","4"],
- [".",".",".", "8",".","3", ".",".","5"],
- ["7",".",".", ".","2",".", ".",".","6"],
- 
- [".",".",".", ".",".",".", "2",".","."],
- [".",".",".", "4","1","9", ".",".","8"],
- [".",".",".", ".","8",".", ".","7","9"]]
+class Solution:
+    def validSudokuGroup(self, group: list[list[str]]) -> bool:
+        """Check if each section in group has no duplicate digits."""
+        for section in group:
+            filteredSection = [x for x in section if x != "."]
+            if len(filteredSection) != len(set(filteredSection)):
+                return False
+        return True
+
+    def extractRows(self, board: np.ndarray) -> list[list[str]]:
+        """Extract all 9 rows from the board."""
+        return board.tolist()
+
+    def extractColumns(self, board: np.ndarray) -> list[list[str]]:
+        """Extract all 9 columns from the board."""
+        return board.T.tolist()
+
+    def extractBlocks(self, board: np.ndarray) -> list[list[str]]:
+        """Extract all 9 3x3 blocks from the board, flattened."""
+        return board.reshape(3, 3, 3, 3).transpose(0, 2, 1, 3).reshape(9, 9).tolist()
+
+    def isValidSudoku(self, board: list[list[str]]) -> bool:
+        """Return True if the sudoku board is valid per standard rules."""
+        board = np.array(board)
+
+        if not self.validSudokuGroup(self.extractRows(board)):
+            return False
+
+        if not self.validSudokuGroup(self.extractColumns(board)):
+            return False
+
+        if not self.validSudokuGroup(self.extractBlocks(board)):
+            return False
+
+
+        return True
+
+
+# board = [["1","2",".",".","3",".",".",".","."],
+# ["4",".",".","5",".",".",".",".","."],
+# [".","9","8",".",".",".",".",".","3"],
+# ["5",".",".",".","6",".",".",".","4"],
+# [".",".",".","8",".","3",".",".","5"],
+# ["7",".",".",".","2",".",".",".","6"],
+# [".",".",".",".",".",".","2",".","."],
+# [".",".",".","4","1","9",".",".","8"],
+# [".",".",".",".","8",".",".","7","9"]]
 # Output: true
 
-# board = 
-# [["1","2",".",".","3",".",".",".","."],
-#  ["4",".",".","5",".",".",".",".","."],
-#  [".","9","1",".",".",".",".",".","3"],
-#  ["5",".",".",".","6",".",".",".","4"],
-#  [".",".",".","8",".","3",".",".","5"],
-#  ["7",".",".",".","2",".",".",".","6"],
-#  [".",".",".",".",".",".","2",".","."],
-#  [".",".",".","4","1","9",".",".","8"],
-#  [".",".",".",".","8",".",".","7","9"]]
+board = [["1","2",".",".","3",".",".",".","."],
+ ["4",".",".","5",".",".",".",".","."],
+ [".","9","1",".",".",".",".",".","3"],
+ ["5",".",".",".","6",".",".",".","4"],
+ [".",".",".","8",".","3",".",".","5"],
+ ["7",".",".",".","2",".",".",".","6"],
+ [".",".",".",".",".",".","2",".","."],
+ [".",".",".","4","1","9",".",".","8"],
+ [".",".",".",".","8",".",".","7","9"]]
 # Output: false
+
 
 solution = Solution()
 result = solution.isValidSudoku(board)
