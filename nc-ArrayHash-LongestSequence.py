@@ -42,30 +42,33 @@ runs, and I want the longest, so I need to save that run when it's finished.
 
 from itertools import pairwise
 
-
 class Solution:
     def longestConsecutive(self, nums: list[int]) -> int:
         nums.sort()  # sort list in place
         print(nums)
         # consecutiveCounter: int = 1
-        allRuns: list = [1]
+        allRuns: list = []
+        counter = 0
         for (first, second) in pairwise(nums):
             difference = second - first
-            print(f"{(first, second)}, {difference}, {allRuns}")
+            print(f"{(first, second)}, {difference}, {counter}, {allRuns}")
             if difference == 0:
                 # consecutiveCounter = consecutiveCounter
                 pass
             elif difference == 1:
                 # consecutiveCounter += 1
-                allRuns[1] += 1
+                counter += 1
             elif difference > 1:
-                allRuns.append(allRuns[1])
-                allRuns[1] = 1
-                
-                # consecutiveCounter = 1
-            
+                allRuns.append(counter)
+                counter = 1
+
         print(allRuns)
-        return allRuns
+
+        try max(allRuns):
+            return max(allRuns)
+        except:
+            return 0
+
 
 
 # nums = [2,20,4,10,3,4,5]  # Output: 4
