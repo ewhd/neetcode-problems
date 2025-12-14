@@ -30,42 +30,41 @@ better than O(n) time and O(n) space, where n is the size of the input array.
 
 Notes:
 
-sort list
-loop through list, compairing steps between consecutive pairs
-use a consecutiveCounter to count up each time step is 1, reset if not 1
-- repeats don't count, so check for difference of 1 or 0
+My first try relied on sort(), which is O(n log n), not O(n).
 
-Oh right, resetting the consecutiveCounter isn't right. I might have multiple consecutive
-runs, and I want the longest, so I need to save that run when it's finished.
+Claude suggests using a hash set (see below)
+
+A hash set 
+
+Apparently in python sets are actually constructed as hash sets behind the
+scenes
 
 '''
-
-from itertools import pairwise
 
 class Solution:
     def longestConsecutive(self, nums: list[int]) -> int:
         if nums == []:
             return 0
 
-        nums.sort()  # sort list in place
         print(nums)
-        allRuns: list = [0]
-        consecutiveCounter = 1
+        numSet = set(nums)
+        print(numSet)
+        maxLength = 1
 
-        for (first, second) in pairwise(nums):
-            difference = second - first
-            print(f"{(first, second)}, {difference}, {consecutiveCounter}, {allRuns}")
-            if difference == 0:
-                continue  # skip duplicates without counting them
-            elif difference == 1:
-                consecutiveCounter += 1
-            else: # difference > 1
-                allRuns.append(consecutiveCounter)
-                consecutiveCounter = 1
+        for num in numSet:
+            if num -1 not in numSet:
+                currentNum = num
+                currentLength =1
+                print(num, num -1, currentNum, currentLength)
 
-        allRuns.append(consecutiveCounter)
-        print(allRuns)
-        return max(allRuns)
+                while currentNum + 1 in numSet:
+                    currentNum += 1
+                    currentLength += 1
+                    print(currentNum, currentLength)
+                maxLength = max(maxLength, currentLength)
+                print(maxLength)
+        return maxLength
+
 
 
 
